@@ -4,13 +4,19 @@ import FbIcon from "../Icons/FbIcon";
 import {GoogleLogin} from "react-google-login";
 import {Button} from "@material-ui/core";
 import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
+import {useDispatch} from "react-redux";
+import {loginAction} from "../../actions/authActions";
+import { useHistory } from "react-router";
  
 function Auth() {
-
+  const dispatch = useDispatch();
+  const history = useHistory();
   const googleSuccess = async (res) => {
     const result = res?.profileObj;
     const token = res?.tokenId;
-    console.log({result, token});
+    console.log({profile: result, token});
+    dispatch(loginAction({profile: result, token}));
+    history.push('/createRoom');
   }
   const googleFailure = (error) => {
       console.log(error);
