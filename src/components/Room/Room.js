@@ -51,7 +51,7 @@ function Room({location}) {
     },[location, fullScreenHandler.active]);
 
     return (
-        isCreator ?
+        isCreator || true ?
             <CreatorWaitingRoom started={started} setStarted={setStarted}/>
         :
             imageProvided?
