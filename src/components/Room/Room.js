@@ -2,6 +2,12 @@ import React,{useEffect, useState} from 'react';
 import queryString from 'query-string';
 import io from "socket.io-client";
 import {FullScreen, useFullScreenHandle} from "react-full-screen";
+import CreatorWaitingRoom from './CreatorWaitingRoom/CreatorWaitingRoom';
+import WaitingRoom from './WaitingRoom/WaitingRoom';
+import EnableFS from './EnableFS/EnableFS';
+import Question from './Question/Question';
+import GetImage from './GetImage/GetImage';
+import Important from './Important/Important';
 
 let socket;
 function Room({location}) {
@@ -12,6 +18,10 @@ function Room({location}) {
     const [user, setUser] = useState(JSON.parse(localStorage.getItem("profile")));
     const [roomData, setRoomData] = useState({});
     const [isCreator, setIsCreator] = useState(false);
+    const [importantPoints, setImportantPoints] = useState(false);
+    const [imageProvided, setImageProvided] = useState(false);
+    const [image, setImage] = useState("");
+    const [question, setQuestion] = useState({});
 
     function leaveRoom(state,handle){
         console.log(state);
@@ -41,28 +51,30 @@ function Room({location}) {
     },[location, fullScreenHandler.active]);
 
     return (
-        <FullScreen handle = {fullScreenHandler} onChange = {leaveRoom}>
-            {
-                fullScreenHandler.active?
-                    !started?
-                        isCreator?
-                        <>
-                            <button onClick = {()=>{setStarted(true)}}>start</button>
-                            <button>close</button>
-                        </>
+        isCreator ?
+            <CreatorWaitingRoom started={started} setStarted={setStarted}/>
+        :
+            imageProvided?
+                <FullScreen handle = {fullScreenHandler} onChange = {leaveRoom}>
+                    {
+                        fullScreenHandler.active?
+                            !started?
+                                importantPoints?
+                                    <Important />
+                                    :
+                                    <WaitingRoom />
+                            :
+                            <Question question={question} setQuestion={setQuestion} />
                         :
                         <>
-                            <button>Leave</button>
+                            <EnableFS fullScreenHandler={fullScreenHandler}/>
+                            {/* <button onClick={fullScreenHandler.enter} >Enable FullScreen</button> */}
                         </>
-                    :
-                        <>
-                            <h1>Quiz</h1>
-                        </>
+                    }
+                </FullScreen>
                 :
-                    <button onClick={fullScreenHandler.enter} >Enable FullScreen</button>
-            }
-        </FullScreen>
+                <GetImage setImage={setImage}/>
     )
 }
 
-export default Room
+export default Room;
