@@ -52,14 +52,15 @@ export const loadUser = () => (dispatch,getState)=>{
     });
 }
 
-export const logIn = (data) => (dispatch,data)=>{
+export const logIn = (data) => (dispatch)=>{
     dispatch({type : USER_LOADING});
 
-
-    // data req to signUp {
-    //     email,password
-    // }
-    axios.post("/api/v1/users/login",{})
+    // axios.post("http://localhost:8000/api/v1/users/login",data)
+    axios({
+        method: 'post',
+        url: 'http://localhost:8000/api/v1/users/login',
+        data: data
+    })
         .then(res=>dispatch({
             type: LOGIN_SUCCESS,
             payload:res.data
@@ -71,13 +72,18 @@ export const logIn = (data) => (dispatch,data)=>{
             });
         });
 }
-export const signUp = (data) => (dispatch,data)=>{
+export const signUp = (data) => (dispatch)=>{
     dispatch({type : USER_LOADING});
 
     // data req to signUp {
-    //     name,email,password,passwordConfirm
+    //     name,email,password,passwordConfirm,role
     // }
-    axios.post("/api/v1/users/signup",{})
+    console.log(data)
+    axios({
+        method: 'post',
+        url: 'http://localhost:8000/api/v1/users/signup',
+        data: data
+    })
         .then(res=>dispatch({
             type:REGISTER_SUCCESS,
             payload:res.data

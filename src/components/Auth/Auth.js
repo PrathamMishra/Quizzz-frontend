@@ -24,8 +24,9 @@ function Auth() {
       email: email,
       password: password,
     };
+    console.log(data)
 
-    await logIn(data);
+    dispatch(logIn(data));
 
   }
   async function handleSignIn() {
@@ -33,10 +34,12 @@ function Auth() {
       name: fullname,
       email: email,
       password: password,
+      // this is not define yet
+      passwordConfirm:password,
       role: roleElement.current.value,
     };
     console.log(data);
-    await signUp(data)
+    dispatch(signUp(data))
     
   }
   function handleSignUp() {
@@ -187,5 +190,8 @@ function Auth() {
     </>
   );
 }
+
+
+
 
 export default Auth;
