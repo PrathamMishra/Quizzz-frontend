@@ -3,7 +3,7 @@ import InvigilatorPage from './InvigilatorPage/InvigilatorPage'
 
 function CreatorWaitingRoom({started,setStarted}) {
     return (
-        started?
+        started || true?
             <InvigilatorPage />
         :
             <div>

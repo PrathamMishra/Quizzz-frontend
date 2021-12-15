@@ -8,6 +8,7 @@ import { useDispatch } from "react-redux";
 import { loginAction } from "../../actions/authActions";
 import { useHistory } from "react-router";
 import { useState, useEffect, useRef } from "react";
+import { logIn, signUp } from "../../redux/auth/authAction";
 
 function Auth() {
   const dispatch = useDispatch();
@@ -18,38 +19,28 @@ function Auth() {
   const [fullname, setName] = useState("");
   const roleElement = useRef(null);
 
-  function handleLogin() {
+  async function handleLogin() {
     const data = {
       email: email,
       password: password,
     };
+    console.log(data)
 
-    // axios
-    //   .post("https://jsonplaceholder.typicode.com/comments", data)
-    //   .then((res) => {
-    //
-    //   })
-    //   .catch((err) => {
-    //     console.log(err);
-    //   });
+    dispatch(logIn(data));
+
   }
-  function handleSignIn() {
+  async function handleSignIn() {
     const data = {
       name: fullname,
       email: email,
       password: password,
+      // this is not define yet
+      passwordConfirm:password,
       role: roleElement.current.value,
     };
     console.log(data);
-    // axios
-    //   .post("https://jsonplaceholder.typicode.com/comments", data)
-    //   .then((res) => {
-    //     setTodos([...todos, res.data]);
-    //     console.log(res);
-    //   })
-    //   .catch((err) => {
-    //     console.log(err);
-    //   });
+    dispatch(signUp(data))
+    
   }
   function handleSignUp() {
     setCheck((prevState) => {
@@ -199,5 +190,8 @@ function Auth() {
     </>
   );
 }
+
+
+
 
 export default Auth;
