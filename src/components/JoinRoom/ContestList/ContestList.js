@@ -1,52 +1,43 @@
 import React from "react";
-import { useState, useEffect } from "react";
-import axios from "axios";
+import { useHistory } from "react-router";
 
-function ContestList() {
-  const [list, setList] = useState([]);
-  useEffect(() => {
-    axios.get("").then((result) => {
-      setList(result.data);
-    });
-  }, []);
-  function handleStart() {
+function ContestList({list}) {
+  const history = useHistory();
+  function handleStart(roomCode) {
     //add
+    history.push(`localhost:3000/Room?roomCode=${roomCode}`)
   }
   return (
     <div>
       <table>
-        <tr>
-          <th>Name</th>
-          <th>Exam</th>
-          <th>subject</th>
-          <th>Participants/</th>
-          <th>level</th>
-          <th>join</th>
-        </tr>
-        {/* <tr>
-          <td>{list.code}</td>
-          <td>{list.exam}</td>
-          <td>{list.subject}</td>
-          <td>{list.status}</td>
-          <td>{list.level}</td>
-          <td>
-            <button className="btn btn-primary" onClick={handleStart}>
-              start
-            </button>
-          </td>
-        </tr> */}
-        <tr>
-          <td>abs</td>
-          <td>term1</td>
-          <td>hindi</td>
-          <td>live</td>
-          <td>hard</td>
-          <td>
-            <button className="btn btn-primary" onClick={handleStart}>
-              start
-            </button>
-          </td>
-        </tr>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Exam</th>
+            <th>subject</th>
+            <th>Participants/</th>
+            <th>level</th>
+            <th>join</th>
+          </tr>
+        </thead>
+        <tbody>
+        { 
+        list.map((listItem)=>{
+          <tr>
+            <td>{listItem.name}</td>
+            <td>{listItem.exam}</td>
+            <td>{listItem.subject}</td>
+            <td>{listItem.status}</td>
+            <td>{listItem.level}</td>
+            <td>
+              <button className="btn btn-primary" onClick={handleStart(listItem.roomCode)}>
+                Join
+              </button>
+            </td>
+          </tr>
+        })
+        }
+        </tbody>
       </table>
     </div>
   );

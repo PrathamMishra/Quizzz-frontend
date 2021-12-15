@@ -1,13 +1,31 @@
 import React, { useState, useEffect, useRef } from "react";
+import axios from "axios";
 import ContestList from "./ContestList/ContestList";
+import { useHistory } from "react-router";
 
 function JoinRoom() {
   const [key, setkey] = useState("");
   const [exam, setExam] = useState("");
   const [subject, setSub] = useState("");
   const [level, setLevel] = useState("");
+  const [list, setList] = useState([]);
+  const history = useHistory();
+  useEffect(()=>{
+    const query = {
+      exam,
+      subject,
+      level
+    };
+    axios.post('localhost:8000/joinRoom',query,(data)=>{
+      if(!data.length){
+          alert('No rooms found');
+      }
+      setList(data);
+    }); 
+  },[]);
   function handleJoin() {
     //add
+    history.push(`localhost:3000/Room?roomCode=${key}`);
   }
 
   return (
@@ -58,7 +76,7 @@ function JoinRoom() {
         </select>
       </div>
       <div>
-        <ContestList />
+        <ContestList list={list} />
       </div>
     </div>
   );
