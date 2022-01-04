@@ -1,14 +1,14 @@
-import React from 'react'
+import React from "react";
 
-function Loader({message}) {
+function Loader({ message }) {
     return (
         <div>
             {message}
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
+            <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">Loading...</span>
             </div>
         </div>
-    )
+    );
 }
 
-export default Loader
+export default Loader;

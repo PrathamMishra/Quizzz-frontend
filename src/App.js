@@ -11,28 +11,26 @@ import store from "./redux/store";
 import { loadUser } from "./redux/auth/authAction";
 
 function App() {
+    const auth = useSelector((state) => state.auth);
+    console.log(auth);
 
-  const auth = useSelector((state) => state.auth)
-  console.log(auth)
+    // useEffect(()=>{
+    //   store.dispatch(loadUser());
+    //   console.log("log hit");
+    // },[])
 
-  // useEffect(()=>{
-  //   store.dispatch(loadUser());
-  //   console.log("log hit");    
-  // },[])
-
-  return (
-      <BrowserRouter>
-      
-        <Switch>
-          <Route path="/" exact component={Home} />
-          <Route path="/auth" exact component={Auth} />
-          <Route path="/createRoom" exact component={CreateRoom} />
-          <Route path="/Room" exact component={Room} />
-          <Route path="/join" exact component={JoinRoom} />
-          <Route path="/invigilator" exact component={InvigilatorPage} />
-        </Switch>
-      </BrowserRouter>
-  );
+    return auth.isAuthenticated ? (
+        <BrowserRouter>
+            <Switch>
+                <Route path="/" exact component={Home} />
+                <Route path="/createRoom" exact component={CreateRoom} />
+                <Route path="/Room" exact component={Room} />
+                <Route path="/joinRoom" exact component={JoinRoom} />
+            </Switch>
+        </BrowserRouter>
+    ) : (
+        <Auth />
+    );
 }
 
 export default App;

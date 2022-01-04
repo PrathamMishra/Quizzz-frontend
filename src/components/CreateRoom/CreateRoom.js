@@ -1,43 +1,54 @@
-import React,{useState,useEffect} from 'react'
-import {useHistory, useLocation} from 'react-router'
+import React, { useState, useEffect } from "react";
+import { useHistory, useLocation } from "react-router";
 import axios from "axios";
-import {useSelector} from "react-redux";
+import { useSelector } from "react-redux";
+import Contest from "./Contest/Contest";
+import OneVsOne from "./OneVsOne/OneVsOne";
+import Challenge from "./Challenge/Challenge";
 
 function CreateRoom() {
-    const history = useHistory();
-    const location = useLocation();
-    const [Public,setPublic] = useState(false);
-    const [numOfQuestion,setNumOfQuestion] = useState(0);
-    const [sizeLimit,setSizeLimit] = useState(0);
-    const [user, setUser] = useState(JSON.parse(localStorage.getItem("profile")));
-
-    useEffect(() => {
-        const token = user?.token;
-        setUser(JSON.parse(localStorage.getItem("profile")));
-    }, [location]);
-    function handleClick(){
-        let roomCode="";
-        for(let i=0;i<4;i++){
-            const offset = Math.floor(Math.random()*26);
-            roomCode+=String.fromCharCode(65+offset)
-        }
-        axios.post("http://localhost:8000/createRoom",{
-            roomCode,sizeLimit,numOfQuestion,Public,name: user.profile.name
-        }).then(()=>{
-            history.push(`/Room?room=${roomCode}`);
-        })
+    const [roomType, setRoomType] = useState("");
+    const [user, setUser] = useState(
+        useSelector((state) => state.auth.data.user)
+    );
+    switch (roomType) {
+        case "":
+            return (
+                <div>
+                    <h2>Select Room Type:</h2>
+                    <div
+                        onClick={() => {
+                            setRoomType("1v1");
+                        }}
+                    >
+                        1 v 1
+                    </div>
+                    <div
+                        onClick={() => {
+                            setRoomType("challenge");
+                        }}
+                    >
+                        Challenge
+                    </div>
+                    {user.role === "teacher" ? (
+                        <div
+                            onClick={() => {
+                                setRoomType("contest");
+                            }}
+                        >
+                            Contest
+                        </div>
+                    ) : null}
+                </div>
+            );
+        case "1v1":
+            return <OneVsOne />;
+        case "challenge":
+            return <Challenge />;
+        case "contest":
+            return <Contest />;
     }
-
-    return (
-        <div>
-            <h1> Create Room</h1>
-                <label>Public</label>
-                <input type="checkbox" name="public" value={Public} onChange={(e)=>setPublic(e.target.value)} />
-                <input type="number" name="sizeLimit" value={sizeLimit} placeholder="size limit" onChange={(e)=>setSizeLimit(e.target.value)}/>
-                <input type="number" name="numOfQuestion" value={numOfQuestion} placeholder="no. of ques" onChange={(e)=>setNumOfQuestion(e.target.value)}/>
-                <button onClick={handleClick}>Submit</button>
-        </div>
-    )
+    return <div>Loading...</div>;
 }
 
-export default CreateRoom
+export default CreateRoom;

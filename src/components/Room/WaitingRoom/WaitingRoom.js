@@ -1,11 +1,7 @@
-import React from 'react'
+import React from "react";
 
 function WaitingRoom() {
-    return (
-        <div>
-            
-        </div>
-    )
+    return <div>Waiting room...</div>;
 }
 
-export default WaitingRoom
+export default WaitingRoom;
