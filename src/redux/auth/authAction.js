@@ -56,10 +56,10 @@ export const loadUser = () => (dispatch, getState) => {
 export const logIn = (data) => (dispatch) => {
     dispatch({ type: USER_LOADING });
 
-    // axios.post("http://localhost:8000/api/v1/users/login",data)
+    // axios.post(process.env.REACT_APP_BACKEND_URL+"/api/v1/users/login",data)
     axios({
         method: "post",
-        url: "http://localhost:8000/api/v1/users/login",
+        url: process.env.REACT_APP_BACKEND_URL + "/api/v1/users/login",
         data: data,
     })
         .then((res) =>
@@ -69,7 +69,7 @@ export const logIn = (data) => (dispatch) => {
             })
         )
         .catch((err) => {
-            dispatch(returnError(err.response.data, err.response.status));
+            dispatch(returnError(err?.response?.data, err?.response?.status));
             dispatch({
                 type: LOGIN_FAIL,
             });
@@ -84,7 +84,7 @@ export const signUp = (data) => (dispatch) => {
     console.log(data);
     axios({
         method: "post",
-        url: "http://localhost:8000/api/v1/users/signup",
+        url: process.env.REACT_APP_BACKEND_URL + "/api/v1/users/signup",
         data: data,
     })
         .then((res) =>

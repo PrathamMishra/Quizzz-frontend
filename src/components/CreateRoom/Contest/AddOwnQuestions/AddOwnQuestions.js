@@ -1,7 +1,18 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import MyPaginateComponent from "./MyPaginateComponent/MyPaginateComponent";
 
-function AddOwnQuestions({ setAddedQuestions }) {
-    return <div></div>;
+function AddOwnQuestions({ numOfQuestion, setAddedQuestions }) {
+    const [currentQuestion, setCurrentQuestion] = useState(1);
+
+    return (
+        <div>
+            <MyPaginateComponent
+                currentQuestion={currentQuestion}
+                setCurrentQuestion={setCurrentQuestion}
+                numOfQuestion={numOfQuestion}
+            />
+        </div>
+    );
 }
 
 export default AddOwnQuestions;

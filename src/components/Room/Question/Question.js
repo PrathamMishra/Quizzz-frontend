@@ -30,6 +30,7 @@ function Question({
     question,
     setQuestion,
     roomCode,
+    setCompleted,
 }) {
     const webcamRef = useRef(null);
     const imgRef = useRef(null);
@@ -149,7 +150,7 @@ function Question({
                 console.log(err);
             } else {
                 if (data.message === "Quiz Complete") {
-                    //redirect to student waiting room
+                    setCompleted(true);
                 } else {
                     setQuestion(data.Question);
                 }

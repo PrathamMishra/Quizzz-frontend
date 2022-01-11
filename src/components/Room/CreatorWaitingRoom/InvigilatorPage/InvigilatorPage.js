@@ -26,7 +26,6 @@ function InvigilatorPage({ roomData, socket }) {
                         <tr
                             key={index}
                             onClick={(event) => {
-                                console.log("lodaa");
                                 event.preventDefault();
                                 const newbarr = bArr;
                                 newbarr[index] = !newbarr[index];
@@ -37,8 +36,13 @@ function InvigilatorPage({ roomData, socket }) {
                             <td>{data.userData.name}</td>
                             <td>{data.status}</td>
                             <td>{data.score}</td>
-                            <td>{data.warning}</td>
-                            <td>{data.questions}</td>
+                            <td>{data.warnings}</td>
+                            <td>
+                                {data.skipped.length +
+                                    data.correct.length +
+                                    data.wrong.length +
+                                    1}
+                            </td>
                             <td>
                                 <button
                                     className="btn btn-primary"

@@ -8,7 +8,7 @@ const videoConstraints = {
     facingMode: "user",
 };
 
-function GetImage({ faceapi, setFaceMatcher, setImg, setFaceFound }) {
+function GetImage({ faceapi, setFaceMatcher, setFaceFound }) {
     const webcamRef = useRef(null);
     const [image, setImage] = useState("");
     const [text, setText] = useState(
@@ -19,7 +19,6 @@ function GetImage({ faceapi, setFaceMatcher, setImg, setFaceFound }) {
     const capture = React.useCallback(async () => {
         try {
             const imageSrc = webcamRef.current.getScreenshot();
-            setImg(imageSrc);
             setImage(imageSrc);
             const faces = await faceapi
                 .detectAllFaces(imgRef.current)

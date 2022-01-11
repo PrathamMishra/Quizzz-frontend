@@ -45,22 +45,25 @@ function Contest() {
             roomCode += String.fromCharCode(65 + offset);
         }
         axios
-            .post("http://localhost:8000/api/v1/rooms/createRoom/", {
-                roomCode,
-                roomType: "contest",
-                sizeLimit,
-                numOfQuestion,
-                Public,
-                creator: user._id,
-                subject,
-                topic,
-                exam,
-                field,
-                addedQuestions,
-                difficulty,
-                questionType,
-                name,
-            })
+            .post(
+                process.env.REACT_APP_BACKEND_URL + "/api/v1/rooms/createRoom/",
+                {
+                    roomCode,
+                    roomType: "contest",
+                    sizeLimit,
+                    numOfQuestion,
+                    Public,
+                    creator: user._id,
+                    subject,
+                    topic,
+                    exam,
+                    field,
+                    addedQuestions,
+                    difficulty,
+                    questionType,
+                    name,
+                }
+            )
             .then((data) => {
                 history.push(`/Room?roomCode=${roomCode}`);
             })
@@ -167,8 +170,12 @@ function Contest() {
                         required
                     >
                         <option value="">Please Select...</option>
-                        {Object.keys(selectData).map((item) => {
-                            return <option value={item}>{item}</option>;
+                        {Object.keys(selectData).map((item, index) => {
+                            return (
+                                <option value={item} key={index}>
+                                    {item}
+                                </option>
+                            );
                         })}
                     </Form.Select>
                 </Form.Group>
@@ -193,9 +200,15 @@ function Contest() {
                     >
                         <option value="">Please Select...</option>
                         {field !== ""
-                            ? Object.keys(selectData[field]).map((item) => {
-                                  return <option value={item}>{item}</option>;
-                              })
+                            ? Object.keys(selectData[field]).map(
+                                  (item, index) => {
+                                      return (
+                                          <option value={item} key={index}>
+                                              {item}
+                                          </option>
+                                      );
+                                  }
+                              )
                             : null}
                     </Form.Select>
                 </Form.Group>
@@ -220,9 +233,11 @@ function Contest() {
                         <option value="">Please Select...</option>
                         {exam !== "" && field !== ""
                             ? Object.keys(selectData[field][exam]).map(
-                                  (item) => {
+                                  (item, index) => {
                                       return (
-                                          <option value={item}>{item}</option>
+                                          <option value={item} key={index}>
+                                              {item}
+                                          </option>
                                       );
                                   }
                               )
@@ -246,9 +261,15 @@ function Contest() {
                     >
                         <option value="">Please Select...</option>
                         {subject !== "" && exam !== "" && field !== ""
-                            ? selectData[field][exam][subject].map((item) => {
-                                  return <option value={item}>{item}</option>;
-                              })
+                            ? selectData[field][exam][subject].map(
+                                  (item, index) => {
+                                      return (
+                                          <option value={item} key={index}>
+                                              {item}
+                                          </option>
+                                      );
+                                  }
+                              )
                             : null}
                     </Form.Select>
                 </Form.Group>
@@ -284,7 +305,10 @@ function Contest() {
             </Row>
             {questionType === "added" ? (
                 <Row className="mb-3">
-                    <AddOwnQuestions setAddedQuestions={setAddedQuestions} />
+                    <AddOwnQuestions
+                        setAddedQuestions={setAddedQuestions}
+                        numOfQuestion={numOfQuestion}
+                    />
                 </Row>
             ) : null}
             <Button variant="primary" type="submit">
