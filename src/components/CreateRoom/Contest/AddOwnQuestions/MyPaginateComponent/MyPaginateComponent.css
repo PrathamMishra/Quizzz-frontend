@@ -1,0 +1,8 @@
+.completedQuestion .page-link {
+    background-color: lime;
+    color: aliceblue;
+}
+.currentQuestion .page-link {
+    background-color: yellow;
+    color: grey;
+}

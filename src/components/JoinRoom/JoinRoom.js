@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useHistory } from "react-router";
 import axios from "axios";
 import ContestList from "./ContestList/ContestList";
-import { useHistory } from "react-router";
+import CustomNavbar from "../CustomNavbar/CustomNavbar";
 
 function JoinRoom() {
     const [key, setkey] = useState("");
@@ -9,24 +10,28 @@ function JoinRoom() {
     const [subject, setSub] = useState("");
     const [level, setLevel] = useState("");
     const [list, setList] = useState([]);
+    const [error, setError] = useState("");
     const history = useHistory();
     useEffect(() => {
-        const query = {
-            exam,
-            subject,
-            level,
-        };
-        axios.post(
-            process.env.REACT_APP_BACKEND_URL + "/joinRoom",
-            query,
-            (data) => {
+        const query = {};
+        if (exam.length) query.exam = exam;
+        if (subject.length) query.subject = subject;
+        if (level.length) query.level = level;
+        axios
+            .post(
+                process.env.REACT_APP_BACKEND_URL + "/api/v1/rooms/joinRoom",
+                query
+            )
+            .then(({ data }) => {
+                console.log(data);
                 if (!data.length) {
-                    alert("No rooms found");
-                }
-                setList(data);
-            }
-        );
-    }, []);
+                    setError("No rooms found");
+                } else setList(data);
+            })
+            .catch((e) => {
+                console.log(e);
+            });
+    }, [exam, subject, level]);
     function handleJoin() {
         //add
         history.push(`/Room?roomCode=${key}`);
@@ -34,13 +39,13 @@ function JoinRoom() {
 
     return (
         <div>
-            <div>#navbar</div>
+            <CustomNavbar />
             <div>
                 <input
                     value={key}
                     type="text"
                     name="key"
-                    placeholder="enter code"
+                    placeholder="Enter code"
                     onChange={(event) => {
                         setkey(event.target.value);
                     }}
@@ -80,7 +85,11 @@ function JoinRoom() {
                 </select>
             </div>
             <div>
-                <ContestList list={list} />
+                {error.length ? (
+                    <div style={{ textAlign: "center" }}>{error}</div>
+                ) : (
+                    <ContestList list={list} />
+                )}
             </div>
         </div>
     );

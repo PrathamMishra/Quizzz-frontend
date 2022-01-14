@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import axios from "axios";
-import { Button, Form, Col, Row, FloatingLabel } from "react-bootstrap";
+import { Button, Form, Col, Row, FloatingLabel, Alert } from "react-bootstrap";
 import AddOwnQuestions from "./AddOwnQuestions/AddOwnQuestions";
 import { useSelector } from "react-redux";
 
 function Contest() {
     const history = useHistory();
     const [Public, setPublic] = useState(false);
+    const [showAlert, setShowAlert] = useState(false);
     const [name, setName] = useState("");
     const [difficulty, setDifficulty] = useState("mixed");
     const [numOfQuestion, setNumOfQuestion] = useState(20);
@@ -18,6 +19,7 @@ function Contest() {
     const [topic, setTopic] = useState("");
     const [questionType, setQuestionType] = useState("random");
     const [addedQuestions, setAddedQuestions] = useState([]);
+    const [addedQuestionsValid, setAddedQuestionsValid] = useState([]);
     const [validated, setValidated] = useState(false);
     const selectData = {
         Engineering: {
@@ -28,6 +30,19 @@ function Contest() {
             },
         },
     };
+
+    useEffect(() => {
+        if (questionType === "added") {
+            let sample = new Array(numOfQuestion).fill("");
+            let validSample = new Array(numOfQuestion).fill(false);
+            setAddedQuestions(sample);
+            setAddedQuestionsValid(validSample);
+        } else {
+            setAddedQuestions([]);
+            setAddedQuestions([]);
+        }
+    }, [numOfQuestion, questionType]);
+
     const [user, setUser] = useState(
         useSelector((state) => state.auth.data.user)
     );
@@ -37,284 +52,314 @@ function Contest() {
         event.preventDefault();
         if (form.checkValidity() === false) {
             event.stopPropagation();
+        } else if (
+            questionType === "added" &&
+            !addedQuestionsValid.reduce((p, c) => p & c)
+        ) {
+            setShowAlert(true);
+            event.stopPropagation();
+        } else {
+            let roomCode = "";
+            for (let i = 0; i < 4; i++) {
+                const offset = Math.floor(Math.random() * 26);
+                roomCode += String.fromCharCode(65 + offset);
+            }
+            axios
+                .post(
+                    process.env.REACT_APP_BACKEND_URL +
+                        "/api/v1/rooms/createRoom/",
+                    {
+                        roomCode,
+                        roomType: "contest",
+                        sizeLimit,
+                        numOfQuestion,
+                        Public,
+                        creator: user._id,
+                        subject,
+                        topic,
+                        exam,
+                        field,
+                        addedQuestions,
+                        difficulty,
+                        questionType,
+                        name,
+                    }
+                )
+                .then((data) => {
+                    history.push(`/Room?roomCode=${roomCode}`);
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
         }
         setValidated(true);
-        let roomCode = "";
-        for (let i = 0; i < 4; i++) {
-            const offset = Math.floor(Math.random() * 26);
-            roomCode += String.fromCharCode(65 + offset);
-        }
-        axios
-            .post(
-                process.env.REACT_APP_BACKEND_URL + "/api/v1/rooms/createRoom/",
-                {
-                    roomCode,
-                    roomType: "contest",
-                    sizeLimit,
-                    numOfQuestion,
-                    Public,
-                    creator: user._id,
-                    subject,
-                    topic,
-                    exam,
-                    field,
-                    addedQuestions,
-                    difficulty,
-                    questionType,
-                    name,
-                }
-            )
-            .then((data) => {
-                history.push(`/Room?roomCode=${roomCode}`);
-            })
-            .catch((err) => {
-                console.log(err);
-            });
     }
     return (
-        <Form
-            noValidate
-            validated={validated}
-            onSubmit={handleSubmit}
-            className="m-3"
-        >
-            <Row>
-                <Col md className="mb-3">
-                    <FloatingLabel
-                        controlId="floatingInput"
-                        label="Name of Contest"
+        <>
+            <Form
+                noValidate
+                validated={validated}
+                onSubmit={handleSubmit}
+                className="m-3"
+            >
+                <Row>
+                    <Col>
+                        {showAlert ? (
+                            <Alert
+                                variant="danger"
+                                onClose={() => setShowAlert(false)}
+                                dismissible
+                            >
+                                Please complete all the added questions
+                            </Alert>
+                        ) : null}
+                    </Col>
+                </Row>
+                <Row>
+                    <Col md className="mb-3">
+                        <FloatingLabel
+                            controlId="floatingInput"
+                            label="Name of Contest"
+                        >
+                            <Form.Control
+                                type="text"
+                                placeholder="Please Enter Name..."
+                                onChange={(e) => {
+                                    setName(e.target.value);
+                                }}
+                                required
+                            />
+                        </FloatingLabel>
+                    </Col>
+                    <Col md className="mb-3">
+                        <Form.Group controlId="form-group-id">
+                            <FloatingLabel
+                                label="Difficulty"
+                                controlId="floatingInput"
+                            >
+                                <Form.Select
+                                    aria-label="Difficulty select"
+                                    onChange={(e) =>
+                                        setDifficulty(e.target.value)
+                                    }
+                                    value={difficulty}
+                                    disabled={questionType === "added"}
+                                >
+                                    <option value="mixed">Mixed</option>
+                                    <option value="easy">Easy</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="hard">Hard</option>
+                                </Form.Select>
+                            </FloatingLabel>
+                        </Form.Group>
+                    </Col>
+                </Row>
+                <Row>
+                    <Form.Group
+                        as={Col}
+                        controlId="form-group-id"
+                        md
+                        className="mb-3"
                     >
-                        <Form.Control
-                            type="text"
-                            placeholder="Please Enter Name..."
-                            onChange={(e) => {
-                                setName(e.target.value);
-                            }}
+                        <Form.Label>Size limit: {sizeLimit}</Form.Label>
+                        <Form.Range
+                            min={20}
+                            max={100}
+                            onChange={(e) => setSizeLimit(e.target.value)}
+                            value={sizeLimit}
                             required
                         />
-                    </FloatingLabel>
-                </Col>
-                <Col md className="mb-3">
-                    <Form.Group controlId="form-group-id">
-                        <FloatingLabel
-                            label="Difficulty"
-                            controlId="floatingInput"
-                        >
-                            <Form.Select
-                                aria-label="Difficulty select"
-                                onChange={(e) => setDifficulty(e.target.value)}
-                                value={difficulty}
-                                disabled={questionType === "added"}
-                            >
-                                <option value="mixed">Mixed</option>
-                                <option value="easy">Easy</option>
-                                <option value="medium">Medium</option>
-                                <option value="hard">Hard</option>
-                            </Form.Select>
-                        </FloatingLabel>
                     </Form.Group>
-                </Col>
-            </Row>
-            <Row>
-                <Form.Group
-                    as={Col}
-                    controlId="form-group-id"
-                    md
-                    className="mb-3"
-                >
-                    <Form.Label>Size limit: {sizeLimit}</Form.Label>
-                    <Form.Range
-                        min={20}
-                        max={100}
-                        onChange={(e) => setSizeLimit(e.target.value)}
-                        value={sizeLimit}
-                        required
-                    />
-                </Form.Group>
-                <Form.Group
-                    as={Col}
-                    controlId="form-group-id"
-                    md
-                    className="mb-3"
-                >
-                    <Form.Label>
-                        Number of Questions: {numOfQuestion}
-                    </Form.Label>
-                    <Form.Range
-                        min={20}
-                        max={50}
-                        onChange={(e) => setNumOfQuestion(e.target.value)}
-                        value={numOfQuestion}
-                        required
-                    />
-                </Form.Group>
-            </Row>
-            <Row>
-                <Form.Group
-                    as={Col}
-                    controlId="form-group-id"
-                    md={3}
-                    sm={6}
-                    className="mb-3"
-                >
-                    <Form.Label>Choose Field Of interest</Form.Label>
-                    <Form.Select
-                        aria-label="Field select"
-                        onChange={(e) => {
-                            setField(e.target.value);
-                            setExam("");
-                            setSubject("");
-                            setTopic("");
-                        }}
-                        value={field}
-                        required
+                    <Form.Group
+                        as={Col}
+                        controlId="form-group-id"
+                        md
+                        className="mb-3"
                     >
-                        <option value="">Please Select...</option>
-                        {Object.keys(selectData).map((item, index) => {
-                            return (
-                                <option value={item} key={index}>
-                                    {item}
-                                </option>
-                            );
-                        })}
-                    </Form.Select>
-                </Form.Group>
-                <Form.Group
-                    as={Col}
-                    controlId="form-group-id"
-                    md={3}
-                    sm={6}
-                    className="mb-3"
-                >
-                    <Form.Label>Choose Exam:</Form.Label>
-                    <Form.Select
-                        aria-label="Exam select"
-                        onChange={(e) => {
-                            setExam(e.target.value);
-                            setSubject("");
-                            setTopic("");
-                        }}
-                        disabled={field === ""}
-                        value={exam}
-                        required
+                        <Form.Label>
+                            Number of Questions: {numOfQuestion}
+                        </Form.Label>
+                        <Form.Range
+                            min={20}
+                            max={50}
+                            onChange={(e) => setNumOfQuestion(e.target.value)}
+                            value={numOfQuestion}
+                            required
+                        />
+                    </Form.Group>
+                </Row>
+                <Row>
+                    <Form.Group
+                        as={Col}
+                        controlId="form-group-id"
+                        md={3}
+                        sm={6}
+                        className="mb-3"
                     >
-                        <option value="">Please Select...</option>
-                        {field !== ""
-                            ? Object.keys(selectData[field]).map(
-                                  (item, index) => {
-                                      return (
-                                          <option value={item} key={index}>
-                                              {item}
-                                          </option>
-                                      );
-                                  }
-                              )
-                            : null}
-                    </Form.Select>
-                </Form.Group>
-                <Form.Group
-                    as={Col}
-                    controlId="form-group-id"
-                    md={3}
-                    sm={6}
-                    className="mb-3"
-                >
-                    <Form.Label>Choose Subject:</Form.Label>
-                    <Form.Select
-                        aria-label="Subject select"
-                        onChange={(e) => {
-                            setSubject(e.target.value);
-                            setTopic("");
-                        }}
-                        disabled={exam === "" || field === ""}
-                        value={subject}
-                        required
-                    >
-                        <option value="">Please Select...</option>
-                        {exam !== "" && field !== ""
-                            ? Object.keys(selectData[field][exam]).map(
-                                  (item, index) => {
-                                      return (
-                                          <option value={item} key={index}>
-                                              {item}
-                                          </option>
-                                      );
-                                  }
-                              )
-                            : null}
-                    </Form.Select>
-                </Form.Group>
-                <Form.Group
-                    as={Col}
-                    controlId="form-group-id"
-                    md={3}
-                    sm={6}
-                    className="mb-3"
-                >
-                    <Form.Label>Choose Topic:</Form.Label>
-                    <Form.Select
-                        aria-label="Topic select"
-                        onChange={(e) => setTopic(e.target.value)}
-                        disabled={subject === "" || exam === "" || field === ""}
-                        value={topic}
-                        required
-                    >
-                        <option value="">Please Select...</option>
-                        {subject !== "" && exam !== "" && field !== ""
-                            ? selectData[field][exam][subject].map(
-                                  (item, index) => {
-                                      return (
-                                          <option value={item} key={index}>
-                                              {item}
-                                          </option>
-                                      );
-                                  }
-                              )
-                            : null}
-                    </Form.Select>
-                </Form.Group>
-            </Row>
-            <Row className="mb-3">
-                <Col md>
-                    <Form.Group controlId="form-group-id">
-                        <Form.Check
-                            type="switch"
+                        <Form.Label>Choose Field Of interest</Form.Label>
+                        <Form.Select
+                            aria-label="Field select"
                             onChange={(e) => {
-                                setDifficulty("mixed");
-                                if (e.target.checked) {
-                                    setQuestionType("added");
-                                } else {
-                                    setQuestionType("random");
-                                }
+                                setField(e.target.value);
+                                setExam("");
+                                setSubject("");
+                                setTopic("");
                             }}
-                            value={!Public}
-                            label="Want to Add Your Own Questions?"
-                        />
+                            value={field}
+                            required
+                        >
+                            <option value="">Please Select...</option>
+                            {Object.keys(selectData).map((item, index) => {
+                                return (
+                                    <option value={item} key={index}>
+                                        {item}
+                                    </option>
+                                );
+                            })}
+                        </Form.Select>
                     </Form.Group>
-                </Col>
-                <Col md>
-                    <Form.Group controlId="form-group-id">
-                        <Form.Check
-                            type="switch"
-                            onChange={(e) => setPublic(!e.target.checked)}
-                            value={!Public}
-                            label="Private Contest"
-                        />
+                    <Form.Group
+                        as={Col}
+                        controlId="form-group-id"
+                        md={3}
+                        sm={6}
+                        className="mb-3"
+                    >
+                        <Form.Label>Choose Exam:</Form.Label>
+                        <Form.Select
+                            aria-label="Exam select"
+                            onChange={(e) => {
+                                setExam(e.target.value);
+                                setSubject("");
+                                setTopic("");
+                            }}
+                            disabled={field === ""}
+                            value={exam}
+                            required
+                        >
+                            <option value="">Please Select...</option>
+                            {field !== ""
+                                ? Object.keys(selectData[field]).map(
+                                      (item, index) => {
+                                          return (
+                                              <option value={item} key={index}>
+                                                  {item}
+                                              </option>
+                                          );
+                                      }
+                                  )
+                                : null}
+                        </Form.Select>
                     </Form.Group>
-                </Col>
-            </Row>
+                    <Form.Group
+                        as={Col}
+                        controlId="form-group-id"
+                        md={3}
+                        sm={6}
+                        className="mb-3"
+                    >
+                        <Form.Label>Choose Subject:</Form.Label>
+                        <Form.Select
+                            aria-label="Subject select"
+                            onChange={(e) => {
+                                setSubject(e.target.value);
+                                setTopic("");
+                            }}
+                            disabled={exam === "" || field === ""}
+                            value={subject}
+                            required
+                        >
+                            <option value="">Please Select...</option>
+                            {exam !== "" && field !== ""
+                                ? Object.keys(selectData[field][exam]).map(
+                                      (item, index) => {
+                                          return (
+                                              <option value={item} key={index}>
+                                                  {item}
+                                              </option>
+                                          );
+                                      }
+                                  )
+                                : null}
+                        </Form.Select>
+                    </Form.Group>
+                    <Form.Group
+                        as={Col}
+                        controlId="form-group-id"
+                        md={3}
+                        sm={6}
+                        className="mb-3"
+                    >
+                        <Form.Label>Choose Topic:</Form.Label>
+                        <Form.Select
+                            aria-label="Topic select"
+                            onChange={(e) => setTopic(e.target.value)}
+                            disabled={
+                                subject === "" || exam === "" || field === ""
+                            }
+                            value={topic}
+                            required
+                        >
+                            <option value="">Please Select...</option>
+                            {subject !== "" && exam !== "" && field !== ""
+                                ? selectData[field][exam][subject].map(
+                                      (item, index) => {
+                                          return (
+                                              <option value={item} key={index}>
+                                                  {item}
+                                              </option>
+                                          );
+                                      }
+                                  )
+                                : null}
+                        </Form.Select>
+                    </Form.Group>
+                </Row>
+                <Row className="mb-3">
+                    <Col md>
+                        <Form.Group controlId="form-group-id">
+                            <Form.Check
+                                type="switch"
+                                onChange={(e) => {
+                                    setDifficulty("mixed");
+                                    if (e.target.checked) {
+                                        setQuestionType("added");
+                                    } else {
+                                        setQuestionType("random");
+                                    }
+                                }}
+                                value={!Public}
+                                label="Want to Add Your Own Questions?"
+                            />
+                        </Form.Group>
+                    </Col>
+                    <Col md>
+                        <Form.Group controlId="form-group-id">
+                            <Form.Check
+                                type="switch"
+                                onChange={(e) => setPublic(!e.target.checked)}
+                                value={!Public}
+                                label="Private Contest"
+                            />
+                        </Form.Group>
+                    </Col>
+                </Row>
+                <Button variant="primary" type="submit">
+                    Submit
+                </Button>
+            </Form>
             {questionType === "added" ? (
                 <Row className="mb-3">
                     <AddOwnQuestions
+                        addedQuestions={addedQuestions}
                         setAddedQuestions={setAddedQuestions}
+                        addedQuestionsValid={addedQuestionsValid}
+                        setAddedQuestionsValid={setAddedQuestionsValid}
                         numOfQuestion={numOfQuestion}
                     />
                 </Row>
             ) : null}
-            <Button variant="primary" type="submit">
-                Submit
-            </Button>
-        </Form>
+        </>
     );
 }
 

@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { Pagination } from "react-bootstrap";
 
+import "./MyPaginateComponent.css";
+
 function MyPaginateComponent({
     currentQuestion,
     setCurrentQuestion,
+    currentPage,
+    setCurrentPage,
+    addedQuestionsValid,
     numOfQuestion,
 }) {
-    const [currentPage, setCurrentPage] = useState(1);
     const [previousDis, setPreviousDis] = useState(true);
     const [nextDis, setNextDis] = useState(false);
     const [firstDis, setFirstDis] = useState(true);
@@ -29,6 +33,9 @@ function MyPaginateComponent({
         if (currentPage === 1) {
             setFirstDis(true);
             setPreviousDis(true);
+        } else {
+            setFirstDis(false);
+            setPreviousDis(false);
         }
         if (numOfQuestion <= 5 * currentPage) {
             setLastDis(true);
@@ -36,9 +43,14 @@ function MyPaginateComponent({
             for (let i = 5 * (currentPage - 1) + 1; i <= numOfQuestion; i++) {
                 newPItems.push(
                     <Pagination.Item
+                        className={
+                            addedQuestionsValid[i - 1] && i !== currentQuestion
+                                ? "completedQuestion"
+                                : i === currentQuestion
+                                ? "currentQuestion"
+                                : null
+                        }
                         key={i}
-                        active={i === currentQuestion}
-                        onClick={() => setCurrentQuestion(i)}
                     >
                         {i}
                     </Pagination.Item>
@@ -46,19 +58,26 @@ function MyPaginateComponent({
             }
             setPItems(newPItems);
         } else {
+            setLastDis(false);
+            setNextDis(false);
             for (let i = 5 * (currentPage - 1) + 1; i <= 5 * currentPage; i++) {
                 newPItems.push(
                     <Pagination.Item
+                        className={
+                            addedQuestionsValid[i - 1] && i !== currentQuestion
+                                ? "completedQuestion"
+                                : i === currentQuestion
+                                ? "currentQuestion"
+                                : null
+                        }
                         key={i}
-                        active={i === currentQuestion}
-                        onClick={() => setCurrentQuestion(i)}
                     >
                         {i}
                     </Pagination.Item>
                 );
             }
         }
-    }, [currentPage, currentQuestion]);
+    }, [currentPage, currentQuestion, addedQuestionsValid]);
 
     function moveToFirstPage() {
         if (numOfQuestion > 5) {
@@ -100,17 +119,11 @@ function MyPaginateComponent({
     return (
         <div>
             <Pagination>
-                <Pagination.First
-                    disabled={firstDis}
-                    onClick={moveToFirstPage}
-                />
-                <Pagination.Prev
-                    disabled={previousDis}
-                    onClick={moveToPrevPage}
-                />
+                <Pagination.First disabled onClick={moveToFirstPage} />
+                <Pagination.Prev disabled onClick={moveToPrevPage} />
                 {pItems}
-                <Pagination.Next disabled={nextDis} onClick={moveToNextPage} />
-                <Pagination.Last disabled={lastDis} onClick={moveToLastPage} />
+                <Pagination.Next disabled onClick={moveToNextPage} />
+                <Pagination.Last disabled onClick={moveToLastPage} />
             </Pagination>
         </div>
     );

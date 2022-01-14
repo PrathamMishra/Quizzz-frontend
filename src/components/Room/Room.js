@@ -32,11 +32,9 @@ function Room({ location }) {
 
     useEffect(() => {
         axios
-            .post(
-                process.env.REACT_APP_BACKEND_URL + "/api/v1/rooms/joinRoom",
-                {
-                    roomCode,
-                }
+            .get(
+                process.env.REACT_APP_BACKEND_URL +
+                    `/api/v1/rooms/joinRoom?roomCode=${roomCode}`
             )
             .then(({ data }) => {
                 console.log(data);
@@ -46,6 +44,7 @@ function Room({ location }) {
                     setTimeout(() => {
                         history.push("/");
                     }, 3000);
+                    return;
                 }
                 if (
                     data?.users?.findIndex(
@@ -81,7 +80,7 @@ function Room({ location }) {
                 }
                 setLoading(false);
             });
-    }, [location]);
+    }, []);
 
     // loading face api models
     useEffect(() => {

@@ -15,7 +15,7 @@ function ContestList({ list }) {
                         <th>Name</th>
                         <th>Exam</th>
                         <th>subject</th>
-                        <th>Participants/</th>
+                        <th>Participants</th>
                         <th>level</th>
                         <th>join</th>
                     </tr>

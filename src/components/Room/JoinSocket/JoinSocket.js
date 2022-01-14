@@ -42,7 +42,8 @@ function JoinSocket({
             }
         });
         socket.on("matchStarted", (data) => {
-            setQuestion(data.Question);
+            console.log(data);
+            setQuestion(data);
             setStarted(true);
         });
         socket.on("roomDisbanded", () => {
@@ -103,7 +104,7 @@ function JoinSocket({
     }
 
     return started ? (
-        completed ? (
+        !completed ? (
             <Question
                 roomCode={roomCode}
                 socket={socket}
