@@ -10,14 +10,18 @@ import { useHistory } from "react-router";
 import { useState, useEffect, useRef } from "react";
 import { logIn, signUp } from "../../redux/auth/authAction";
 
-function Auth() {
+
+function Auth(){
+
     const dispatch = useDispatch();
-    const history = useHistory();
-    const [check, setCheck] = useState("");
+    let [change,setChange]=useState("out")
+
+    const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [fullname, setName] = useState("");
-    const roleElement = useRef(null);
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [role,setRole]=useState("")
+    const [idProof,setIdproof]=useState("")
 
     async function handleLogin() {
         const data = {
@@ -29,178 +33,74 @@ function Auth() {
         dispatch(logIn(data));
     }
     async function handleSignIn() {
+        // TODO pass and confirm password funtion
+
         const data = {
-            name: fullname,
+            name: name,
             email: email,
             password: password,
-            // this is not define yet
-            passwordConfirm: password,
-            role: roleElement.current.value,
+            passwordConfirm: confirmPassword,
+            idProof:idProof,
+            role: role,
         };
         console.log(data);
         dispatch(signUp(data));
     }
-    function handleSignUp() {
-        setCheck((prevState) => {
-            return !prevState;
-        });
+    function changeSection(){
+        setChange(e=>e==="in"?"out":"in")
     }
-    const googleSuccess = async (res) => {
-        const result = res?.profileObj;
-        const token = res?.tokenId;
-        console.log({ profile: result, token });
-        dispatch(loginAction({ profile: result, token }));
-        history.push("/");
-    };
-    const googleFailure = (error) => {
-        console.log(error);
-        console.log("Google Sign In Unsuccessful. Try Again Later");
-    };
-
-    const responseFacebook = (response) => {
-        console.log(response);
-    };
-
+    function uploadDoc(e){
+        e.preventDefault()
+        setIdproof(e.target.files[0])
+    }
+    // const formData = new FormData();
+    
+    //   // Update the formData object
+    //   formData.append(
+    //     "myFile",
+    //     idProof,
+    //     idProof.name
+    //   );
+    
+    //   // Request made to the backend api
+    //   // Send formData object
+    //   axios.post("api/uploadfile", formData);
+    // };
     return (
-        <>
-            <div>
-                <div>
-                    {check ? (
-                        <button
-                            className="btn btn-primary"
-                            onClick={handleSignUp}
-                        >
-                            login
-                        </button>
-                    ) : (
-                        <button
-                            className="btn btn-primary"
-                            onClick={handleSignUp}
-                        >
-                            sign up
-                        </button>
-                    )}
-                </div>
-                <div className="container">
-                    {check ? (
-                        <div>
-                            <input
-                                value={fullname}
-                                type="text"
-                                name="fullname"
-                                placeholder="full name"
-                                onChange={(event) => {
-                                    setName(event.target.value);
-                                }}
-                                align="left"
-                            />
-
-                            <input
-                                value={email}
-                                type="text"
-                                name="email"
-                                placeholder="email"
-                                onChange={(event) => {
-                                    setEmail(event.target.value);
-                                }}
-                                align="left"
-                            />
-                            <input
-                                value={password}
-                                type="text"
-                                name="password"
-                                placeholder="password"
-                                onChange={(event) => {
-                                    setPassword(event.target.value);
-                                }}
-                                align="left"
-                            />
-                            <select ref={roleElement}>
-                                <option value="student">student</option>
-                                <option value="teacher">teacher</option>
-                                <option value="institute">
-                                    institute/organisation
-                                </option>
-                            </select>
-                            <button
-                                className="btn btn-primary"
-                                onClick={handleSignIn}
-                            >
-                                Sign up
-                            </button>
+        <div className="container_auth login_box">
+            <div className="auth_container">
+                <div className="auth_nav" onClick={changeSection}>sign-Up</div>
+                <div className="auth_section">
+                    <div className={`login_container`}>
+                        <h3 className="auth_header">Sign in</h3>
+                        <p className="auth_p">Loream ealkjdljfljdfflasjdfljasdlfjasddsfskdfhiurb fjsagduyfg sjdgf;lfjasdljflsd</p>
+                        <input type="email" className="input_field email" onChange={e=>setEmail(e.target.value)} placeholder="Email" />
+                        <input type="password" className="input_field password" onChange={e=>setPassword(e.target.value)} placeholder="Password"/>
+                        <div className="login_btn">
+                            <h3 className="btn btn-outline-dark" onClick={handleLogin}>Login</h3>
                         </div>
-                    ) : (
-                        <div>
-                            <input
-                                value={email}
-                                type="text"
-                                name="email"
-                                placeholder="email"
-                                onChange={(event) => {
-                                    setEmail(event.target.value);
-                                }}
-                                align="left"
-                            />
-                            <input
-                                value={password}
-                                type="text"
-                                name="password"
-                                placeholder="password"
-                                onChange={(event) => {
-                                    setPassword(event.target.value);
-                                }}
-                                align="left"
-                            />
-                            <button
-                                className="btn btn-primary"
-                                onClick={handleLogin}
-                            >
-                                Login
-                            </button>
-                        </div>
-                    )}
-                </div>
-                <div>
-                    {/* <GoogleLogin
-                        clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
-                        render={(renderProps) => (
-                            <Button
-                                color="primary"
-                                fullWidth
-                                onClick={renderProps.onClick}
-                                disabled={renderProps.disabled}
-                                startIcon={<GoogleIcon />}
-                                variant="contained"
-                            >
-                                Google Sign In
-                            </Button>
-                        )}
-                        onSuccess={googleSuccess}
-                        onFailure={googleFailure}
-                        cookiePolicy="single_host_origin"
-                    />
-                    <FacebookLogin
-                        appId={process.env.REACT_APP_FB_APP_ID}
-                        autoload
-                        fields="name,email,picture"
-                        callback={responseFacebook}
-                        render={(renderProps) => (
-                            <Button
-                                color="primary"
-                                fullWidth
-                                onClick={renderProps.onClick}
-                                disabled={renderProps.isDisabled}
-                                startIcon={<FbIcon />}
-                                variant="contained"
-                            >
-                                Facebook Sign In
-                            </Button>
-                        )}
-                    /> */}
+                    </div>
                 </div>
             </div>
-        </>
-    );
+            <div className={`auth_container signup_box  ${change==="in"?"signup_box_insert":" "}`}>
+                <div className="auth_nav" onClick={changeSection}>sign-In</div>
+                <div className="auth_section">
+                    <div className={`sign_container`}>
+                        <h3 className="auth_header">Sign Up</h3>
+                        <p className="auth_p">Loream ealkjdljfljdfflasjdfljasdlfjasddsfskdfhiurb fjsagduyfg sjdgf;lfjasdljflsd</p>
+                        <input type="text" className="input_field email" onChange={e=>setName(e.target.value)} placeholder="Name" />
+                        <input type="email" className="input_field email" onChange={e=>setEmail(e.target.value)} placeholder="Email" />
+                        <input type="password" className="input_field password" onChange={e=>setPassword(e.target.value)} placeholder="Password"/>
+                        <input type="password" className="input_field password" onChange={e=>setConfirmPassword(e.target.value)} placeholder="Confirm Password"/>
+                        <input type="file" name="uploadFile" onChange={uploadDoc} className="upload_field"/>
+                        <div className="login_btn">
+                            <h3 className="btn btn-outline-dark" onClick={handleSignIn}>sign up</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
 }
 
 export default Auth;

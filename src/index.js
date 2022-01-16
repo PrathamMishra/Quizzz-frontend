@@ -3,6 +3,7 @@ import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import App from "./App";
+import "./assest/style/custom.scss";
 import { store, persistedStore } from "./redux/store";
 
 ReactDOM.render(
