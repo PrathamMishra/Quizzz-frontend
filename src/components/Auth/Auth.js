@@ -1,18 +1,9 @@
-import React from "react";
-import GoogleIcon from "../Icons/GoogleIcon";
-import FbIcon from "../Icons/FbIcon";
-import { GoogleLogin } from "react-google-login";
-import { Button } from "react-bootstrap";
-import FacebookLogin from "react-facebook-login/dist/facebook-login-render-props";
+import React,{useState} from "react";
 import { useDispatch } from "react-redux";
-import { loginAction } from "../../actions/authActions";
-import { useHistory } from "react-router";
-import { useState, useEffect, useRef } from "react";
 import { logIn, signUp } from "../../redux/auth/authAction";
 
 
 function Auth(){
-
     const dispatch = useDispatch();
     let [change,setChange]=useState("out")
 
